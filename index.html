@@ -1,0 +1,9 @@
+<script async src="https://docs.opencv.org/4.5.1/opencv.js" onload="cvReady()"></script>
+<script>
+    function cvReady() {
+        console.log("OpenCV.js is fully loaded!");
+        window.cvReady = true; // Set a flag when OpenCV is ready
+    }
+</script>
+<video id = "video" autoplay playsinline></video>
+<script defer src="slam.js"></script> <!-- Ensures OpenCV loads first -->
