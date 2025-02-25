@@ -1,9 +1,11 @@
+<video id="video" autoplay playsinline style="position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; background: black;"></video>
+
 <script async src="https://docs.opencv.org/4.5.1/opencv.js" onload="cvReady()"></script>
 <script>
     function cvReady() {
-        console.log("OpenCV.js is fully loaded!");
-        window.cvReady = true; // Set a flag when OpenCV is ready
+        console.log(" OpenCV.js is fully loaded!");
+        window.cvReady = true;
     }
 </script>
-<video id = "video" autoplay playsinline></video>
-<script defer src="slam.js"></script> <!-- Ensures OpenCV loads first -->
+<script defer src="slam_feature_matching.js"></script> 
+
