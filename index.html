@@ -1,4 +1,5 @@
-<video id="video" autoplay playsinline style="position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; background: black;"></video>
+<!DOCTYPE html>
+<video id="video" autoplay playsinline style="position: absolute; top: 0; left: 0; width: 640; height: 480; object-fit: cover; background: black;"></video>
 
 <script async src="https://docs.opencv.org/4.5.1/opencv.js" onload="cvReady()"></script>
 <script>
@@ -7,5 +8,50 @@
         window.cvReady = true;
     }
 </script>
-<script defer src="slam_feature_matching.js"></script> 
+<!-- <script defer src="slam_feature_matching.js"></script>  -->
+<!-- <script defer src="slam_with_threejs.js"></script> -->
+ <script defer src="slam_withPnP.js"></script>
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+    }
+
+    video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1; /* Keep video in the background */
+    }
+
+    #threejs-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2; /* Ensure Three.js canvas is on top */
+        pointer-events: none; /* Allow clicks to pass through */
+    }
+
+    #canvasOverlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 3; /* Ensure overlay (feature points) is above video */
+        pointer-events: none; /* Allow interaction with AR */
+    }
+</style>
+
+
+
+<!-- <script defer src="slam.js"></script> -->
 

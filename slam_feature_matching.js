@@ -1,14 +1,13 @@
 function waitForCV(callback) {
     if (typeof cv !== "undefined" && cv.getBuildInformation) {
-        console.log("✅ OpenCV.js is ready!");
+        console.log(" OpenCV.js is ready!");
         callback();
     } else {
-        console.log("⏳ Waiting for OpenCV to load...");
+        console.log(" Waiting for OpenCV to load...");
         setTimeout(() => waitForCV(callback), 100);
     }
 }
 
-// ✅ Ensure `trackFeatures()` is defined before `startCamera()`
 function trackFeatures() {
     let video = document.getElementById("video");
 
@@ -34,61 +33,65 @@ function trackFeatures() {
 
     function processFrame() {
         if (video.readyState < 2) {
-            console.log("⏳ Waiting for video frame...");
+            console.log(" Waiting for video frame...");
             return;
         }
-
+    
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
+    
         let src = new cv.Mat(canvas.height, canvas.width, cv.CV_8UC4);
         src.data.set(imageData.data);
         let gray = new cv.Mat();
         cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-
+    
         if (gray.rows === 0 || gray.cols === 0) {
-            console.log("🚨 Empty frame detected, skipping...");
+            console.log(" Empty frame detected, skipping...");
             return;
         }
-
+    
         let keypoints = new cv.KeyPointVector();
         let descriptors = new cv.Mat();
         let detector = new cv.ORB();
         detector.detectAndCompute(gray, new cv.Mat(), keypoints, descriptors);
-
-        console.log("🔍 Keypoints detected:", keypoints.size());
-
+    
+        console.log(" Keypoints detected:", keypoints.size());
+    
         ctxOverlay.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
-
+    
+        let videoWidth = video.videoWidth || canvas.width;
+        let videoHeight = video.videoHeight || canvas.height;
+    
+        //  Correctly scale detected keypoints to canvas size
         for (let i = 0; i < keypoints.size(); i++) {
             let kp = keypoints.get(i);
-            let x = kp.pt.x * (canvas.width / video.videoWidth);
-            let y = kp.pt.y * (canvas.height / video.videoHeight);
-
+            let x = (kp.pt.x / videoWidth) * canvas.width;
+            let y = (kp.pt.y / videoHeight) * canvas.height;
+    
             ctxOverlay.beginPath();
             ctxOverlay.arc(x, y, 5, 0, 2 * Math.PI);
             ctxOverlay.strokeStyle = "red";
             ctxOverlay.lineWidth = 2;
             ctxOverlay.stroke();
         }
-
+    
         if (!prevDescriptors.empty()) {
             let bf = new cv.BFMatcher(cv.NORM_HAMMING, true);
             let matches = new cv.DMatchVector();
             bf.match(prevDescriptors, descriptors, matches);
-
-            console.log("🔗 Matched features:", matches.size());
-
+    
+            console.log(" Matched features:", matches.size());
+    
             for (let i = 0; i < matches.size(); i++) {
                 let match = matches.get(i);
                 let prevPoint = prevKeypoints.get(match.queryIdx).pt;
                 let currPoint = keypoints.get(match.trainIdx).pt;
-
-                let prevX = prevPoint.x * (canvas.width / video.videoWidth);
-                let prevY = prevPoint.y * (canvas.height / video.videoHeight);
-                let currX = currPoint.x * (canvas.width / video.videoWidth);
-                let currY = currPoint.y * (canvas.height / video.videoHeight);
-
+    
+                let prevX = (prevPoint.x / videoWidth) * canvas.width;
+                let prevY = (prevPoint.y / videoHeight) * canvas.height;
+                let currX = (currPoint.x / videoWidth) * canvas.width;
+                let currY = (currPoint.y / videoHeight) * canvas.height;
+    
                 ctxOverlay.beginPath();
                 ctxOverlay.moveTo(prevX, prevY);
                 ctxOverlay.lineTo(currX, currY);
@@ -96,26 +99,27 @@ function trackFeatures() {
                 ctxOverlay.lineWidth = 1;
                 ctxOverlay.stroke();
             }
-
+    
             matches.delete();
             bf.delete();
         }
-
+    
         prevDescriptors.delete();
         prevDescriptors = descriptors.clone();
         prevKeypoints.delete();
         prevKeypoints = keypoints.clone();
-
+    
         keypoints.delete();
         descriptors.delete();
         detector.delete();
     }
+    
 
     setInterval(processFrame, 100);
 }
 
 waitForCV(() => {
-    console.log("🚀 Running Feature Matching SLT!");
+    console.log("Running Feature Matching SLT!");
 
     let video = document.getElementById("video");
 
@@ -123,14 +127,14 @@ waitForCV(() => {
         try {
             let stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
             video.srcObject = stream;
-            console.log("🎥 Camera started!");
+            console.log(" Camera started!");
 
             video.addEventListener("loadeddata", () => {
-                console.log("🎥 Video is ready!");
-                trackFeatures(); // ✅ Now `trackFeatures()` is defined before being called
+                console.log("Video is ready!");
+                trackFeatures(); 
             });
         } catch (err) {
-            console.error("🚨 Camera access denied:", err);
+            console.error(" Camera access denied:", err);
         }
     }
 
